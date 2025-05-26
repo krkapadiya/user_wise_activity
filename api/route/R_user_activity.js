@@ -3,7 +3,7 @@ const router=express.Router()
 const {register,registeruser,login,loginuser,dashboard,activity,addactivity,updateActivityOrder,updateactivity,deleteactivity,oldactivity}=require('./../controller/C_user_activity');
 
 
-router.get('/register',register);
+router.get('/',register);
 router.post('/registeruser',registeruser);
 router.get('/login',login);
 router.post('/loginuser',loginuser);
