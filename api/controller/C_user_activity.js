@@ -52,8 +52,7 @@ const dashboard = async (req, res) => {
             user: userData,
             activities: userData.activity_order
         });
-    } catch (error) {
-        console.log(error);
+    } catch {
         res.status(500).send("Dashboard failed");
     }
 };
