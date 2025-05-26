@@ -1,4 +1,4 @@
-const users=require('./M_user');
-const activities=require('./M_activity')
+const users = require("./M_user");
+const activities = require("./M_activity");
 
-module.exports={users,activities}
+module.exports = { users, activities };
