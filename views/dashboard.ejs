@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      background-color: #333;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .container {
+      padding: 40px 30px;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    .add-btn {
+      display: inline-block;
+      background-color: #28a745;
+      color: white;
+      padding: 10px 16px;
+      margin: 20px 0;
+      border: none;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .add-btn:hover {
+      background-color: #218838;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    .no-activity {
+      text-align: center;
+      font-size: 18px;
+      color: #777;
+      margin-top: 40px;
+    }
+
+    tbody tr {
+      cursor: move;
+    }
+
+    .btn-edit, .btn-delete {
+      padding: 6px 12px;
+      margin: 0 4px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .btn-edit {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background-color: #0069d9;
+    }
+
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <h1>Dashboard</h1>
+    <span><i class="fas fa-user-circle"></i> <%= user.email %></span>
+  </div>
+
+  <div class="container">
+    <a href="/add-activity" class="add-btn"><i class="fas fa-plus"></i> Add Activity</a>
+
+    <% if (activities && activities.length > 0) { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Activity Name</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="activity-table">
+          <!-- <% activities.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); %> -->
+          <% activities.forEach((activity) => { %>
+            <tr data-id="<%= activity._id %>">
+              <td><%= activity.activity_name %></td>
+              <td>
+                <a href="/edit-activity/<%= activity._id %>" class="btn-edit">Edit</a>
+                <button onclick="deleteActivity('<%= activity._id %>')" class="btn-delete">Delete</button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p class="no-activity">No activities found. Start by adding one!</p>
+    <% } %>
+  </div>
+
+  <script>
+    const socket = io();
+    const userId = "<%= user._id %>";
+
+    socket.emit("joinRoom", userId);
+
+    socket.on("deleteactivity", (activityId) => {
+      const row = document.querySelector(`tr[data-id="${activityId}"]`);
+      if (row) row.remove();
+  });
+
+  socket.on("updateactivity", (updatedActivity) => {
+  const row = document.querySelector(`tr[data-id="${updatedActivity._id}"]`);
+  if (row) {
+    row.children[0].innerText = updatedActivity.activity_name;
+  }
+});
+
+    const table = document.getElementById("activity-table");
+    new Sortable(table, {
+      animation: 150,
+      onEnd: function () {
+        const newOrder = Array.from(table.querySelectorAll("tr")).map(row => row.getAttribute("data-id"));
+        socket.emit("reorderActivities", { userId, newOrder });
+      }
+    });
+
+    socket.on("updateActivityOrder", (newActivities) => {
+      table.innerHTML = "";
+      newActivities.forEach(activity => {
+        const tr = document.createElement("tr");
+        tr.setAttribute("data-id", activity._id);
+        tr.innerHTML = `
+          <td>${activity.activity_name}</td>
+          <td>
+            <a href="/edit-activity/${activity._id}" class="btn-edit">Edit</a>
+            <button onclick="deleteActivity('${activity._id}')" class="btn-delete">Delete</button>
+          </td>`;
+        table.appendChild(tr);
+      });
+    });
+
+    function deleteActivity(activityId) {
+    if (confirm("Are you sure you want to delete this activity?")) {
+    fetch('/deleteactivity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ activity_id: activityId, user_id: userId }) // ✅ send user_id
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        // Activity will be removed by socket event
+      } else {
+        alert("Failed to delete activity.");
+      }
+    })
+    .catch(() => alert("Error deleting activity."));
+  }
+}
+
+  </script>
+</body>
+</html>

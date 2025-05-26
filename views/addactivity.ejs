@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Activity</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      color: #333;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Add Activity</h2>
+    <form action="/add-activity" method="POST">
+      <input type="text" name="activity_name" placeholder="Activity Title" required style="font-weight: bold;">
+      <!-- <textarea name="description" placeholder="Activity Description" rows="4" required></textarea> -->
+      <button type="submit">Add Activity</button>
+    </form>
+    <a href="/dashboard">← Back to Dashboard</a>
+  </div>
+</body>
+</html>

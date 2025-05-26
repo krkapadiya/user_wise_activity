@@ -1,0 +1,32 @@
+# Node.js
+node_modules/
+package-lock.json
+
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# dotenv environment variables
+.env
+
+# Coverage reports
+coverage/
+
+
+# Optional: VSCode settings (only if you don't want to share them)
+.vscode/
+
+# Optional: OS specific
+.idea/
+*.swp
+
+# Optional: build artifacts
+dist/
+build/
+tmp/
+temp/
+
+# Render or deployment-specific
+render.yaml
